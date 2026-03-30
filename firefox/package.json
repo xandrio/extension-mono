@@ -1,0 +1,9 @@
+{
+  "name": "firefox-extension",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "build": "echo \"Build script is not implemented yet\"",
+    "lint": "echo \"Lint script is not implemented yet\""
+  }
+}
