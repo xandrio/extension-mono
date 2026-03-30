@@ -1,0 +1,4 @@
+packages:
+  - 'firefox'
+  - 'chrome'
+  - 'shared'

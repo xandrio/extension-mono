@@ -1,0 +1,10 @@
+{
+  "name": "extension-dashboard-mono",
+  "private": true,
+  "version": "0.0.1",
+  "packageManager": "pnpm@10",
+  "scripts": {
+    "dev": "echo \"No root dev command yet\"",
+    "build": "echo \"No root build command yet\""
+  }
+}
