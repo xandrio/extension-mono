@@ -1,11 +1,31 @@
-// Background service worker stub.
-// Keep this file minimal until extension-level logic is needed.
+// Background service worker acts as the central bridge broker.
+importScripts(
+  'bridge/contracts/messageTypes.js',
+  'bridge/contracts/protocol.js',
+  'bridge/handlers/stubHandlers.js',
+  'bridge/bridgeBroker.js'
+);
 
-self.addEventListener('install', () => {
-  // Reserved for future setup steps.
-});
+(function initBackgroundBridge(globalScope) {
+  function getRuntime() {
+    if (globalScope.browser && globalScope.browser.runtime) {
+      return globalScope.browser.runtime;
+    }
 
-self.addEventListener('message', (event) => {
-  // Reserved for future message handling between extension entry points.
-  console.debug('Background message stub:', event.data);
-});
+    if (globalScope.chrome && globalScope.chrome.runtime) {
+      return globalScope.chrome.runtime;
+    }
+
+    return null;
+  }
+
+  const runtime = getRuntime();
+
+  if (!runtime || !runtime.onMessage) {
+    return;
+  }
+
+  runtime.onMessage.addListener((message) => {
+    return globalScope.BridgeBroker.handleRequest(message);
+  });
+})(self);
