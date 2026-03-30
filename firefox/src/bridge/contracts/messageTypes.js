@@ -1,0 +1,11 @@
+(function initBridgeMessageTypes(globalScope) {
+  globalScope.BRIDGE_MESSAGE_TYPES = {
+    PING: 'PING',
+    GET_CAPABILITIES: 'GET_CAPABILITIES',
+    GET_BOOKMARKS: 'GET_BOOKMARKS',
+    GET_HISTORY: 'GET_HISTORY',
+    GET_TABS: 'GET_TABS',
+    GET_SETTINGS: 'GET_SETTINGS',
+    SAVE_SETTINGS: 'SAVE_SETTINGS'
+  };
+})(self);
