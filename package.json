@@ -1,10 +1,15 @@
 {
   "name": "extension-dashboard-mono",
   "private": true,
-  "version": "0.0.1",
-  "packageManager": "pnpm@10",
+  "workspaces": [
+    "firefox",
+    "chrome",
+    "shared"
+  ],
   "scripts": {
-    "dev": "echo \"No root dev command yet\"",
-    "build": "echo \"No root build command yet\""
+    "build:firefox": "npm run build -w firefox",
+    "build:chrome": "npm run build -w chrome",
+    "lint:firefox": "npm run lint -w firefox",
+    "lint:chrome": "npm run lint -w chrome"
   }
 }
