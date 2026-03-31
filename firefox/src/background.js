@@ -2,6 +2,7 @@
 importScripts(
   'bridge/contracts/messageTypes.js',
   'bridge/contracts/protocol.js',
+  'bridge/capabilities/bridgeCapabilities.js',
   'bridge/handlers/stubHandlers.js',
   'bridge/bridgeBroker.js'
 );

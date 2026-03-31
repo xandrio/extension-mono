@@ -1,9 +1,10 @@
 (function initBridgeStubHandlers(globalScope) {
   const messageTypes = globalScope.BRIDGE_MESSAGE_TYPES;
   const protocol = globalScope.BridgeProtocol;
+  const capabilitiesModel = globalScope.BridgeCapabilities;
 
-  if (!messageTypes || !protocol) {
-    throw new Error('Bridge contracts must load before stub handlers.');
+  if (!messageTypes || !protocol || !capabilitiesModel) {
+    throw new Error('Bridge contracts and capabilities must load before stub handlers.');
   }
 
   const defaultSettings = {
@@ -17,6 +18,10 @@
 
   function cloneSettings() {
     return Object.assign({}, settingsState);
+  }
+
+  function getCapabilities() {
+    return capabilitiesModel.createCapabilitiesSnapshot(cloneSettings());
   }
 
   function applySettingsPatch(payload) {
@@ -74,12 +79,7 @@
   }
 
   function handleCapabilities() {
-    return protocol.createSuccessResponse(messageTypes.GET_CAPABILITIES, {
-      supportsBookmarks: false,
-      supportsHistory: false,
-      supportsTabs: false,
-      supportsSettings: true
-    });
+    return protocol.createSuccessResponse(messageTypes.GET_CAPABILITIES, getCapabilities());
   }
 
   function handleGetBookmarks() {
@@ -144,6 +144,7 @@
 
   globalScope.BridgeStubHandlers = {
     handleRequest: handleStubBridgeRequest,
-    handlersByType
+    handlersByType,
+    getCapabilities
   };
 })(self);
