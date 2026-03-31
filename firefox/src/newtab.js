@@ -34,6 +34,33 @@
     };
   }
 
+  function renderCapabilitySummary(capabilitiesResponse) {
+    const target = document.getElementById('capabilities-output');
+
+    if (!target) {
+      return;
+    }
+
+    if (!capabilitiesResponse || !capabilitiesResponse.ok) {
+      target.textContent = prettyJson(capabilitiesResponse);
+      return;
+    }
+
+    const features = capabilitiesResponse.data && capabilitiesResponse.data.features;
+
+    if (!features) {
+      target.textContent = prettyJson(capabilitiesResponse);
+      return;
+    }
+
+    const lines = Object.keys(features).map((featureName) => {
+      const feature = features[featureName];
+      return `- ${featureName}: ${feature.supported ? 'supported' : 'not supported'} (${feature.mode})`;
+    });
+
+    target.textContent = lines.join('\n');
+  }
+
   function renderBase(status) {
     root.innerHTML = `
       <section style="font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 3rem auto; max-width: 40rem; padding: 0 1rem;">
@@ -44,7 +71,9 @@
         <p style="margin: 0 0 1rem; line-height: 1.5; color: ${status.ok ? '#0a6b2d' : '#8a1d1d'};">
           ${status.ok ? '✅' : '⚠️'} ${status.detail}
         </p>
-        <button id="toggle-telemetry" style="padding: 0.5rem 0.75rem;">Toggle telemetry + save</button>
+        <p style="margin: 0.75rem 0 0.25rem; color: #555;">Capabilities summary (from GET_CAPABILITIES):</p>
+        <pre id="capabilities-output" style="background: #f7f7f7; padding: 0.75rem; border-radius: 0.375rem; overflow-x: auto; font-size: 0.875rem;">Loading capabilities…</pre>
+        <button id="toggle-telemetry" style="padding: 0.5rem 0.75rem; margin-top: 0.75rem;">Toggle telemetry + save</button>
         <p style="margin: 0.75rem 0 0.25rem; color: #555;">Current settings (from GET_SETTINGS):</p>
         <pre id="settings-output" style="background: #f7f7f7; padding: 0.75rem; border-radius: 0.375rem; overflow-x: auto; font-size: 0.875rem;">Loading settings…</pre>
         <p style="margin: 0.75rem 0 0.25rem; color: #555;">Last SAVE_SETTINGS response:</p>
@@ -60,6 +89,9 @@
     if (!messageTypes || !bridge) {
       return;
     }
+
+    const capabilitiesResponse = await bridge.request(messageTypes.GET_CAPABILITIES);
+    renderCapabilitySummary(capabilitiesResponse);
 
     const settingsOutput = document.getElementById('settings-output');
     const saveOutput = document.getElementById('save-output');
@@ -88,6 +120,9 @@
 
       saveOutput.textContent = prettyJson(saveResponse);
       await refreshSettingsView();
+
+      const updatedCapabilitiesResponse = await bridge.request(messageTypes.GET_CAPABILITIES);
+      renderCapabilitySummary(updatedCapabilitiesResponse);
     });
   }
 
