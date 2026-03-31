@@ -6,11 +6,65 @@
     throw new Error('Bridge contracts must load before stub handlers.');
   }
 
-  const placeholderSettings = {
+  const defaultSettings = {
     theme: 'system',
-    dashboardUrl: null,
+    dashboardUrl: 'http://localhost:3000',
     telemetryEnabled: false
   };
+
+  // In-memory scaffold state (background-lifetime only).
+  let settingsState = Object.assign({}, defaultSettings);
+
+  function cloneSettings() {
+    return Object.assign({}, settingsState);
+  }
+
+  function applySettingsPatch(payload) {
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+      return {
+        ok: false,
+        error: 'Settings payload must be an object.'
+      };
+    }
+
+    if (Object.prototype.hasOwnProperty.call(payload, 'theme')) {
+      if (typeof payload.theme !== 'string' || payload.theme.trim() === '') {
+        return {
+          ok: false,
+          error: 'theme must be a non-empty string.'
+        };
+      }
+
+      settingsState.theme = payload.theme;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(payload, 'dashboardUrl')) {
+      const isValidType =
+        payload.dashboardUrl === null || typeof payload.dashboardUrl === 'string';
+
+      if (!isValidType) {
+        return {
+          ok: false,
+          error: 'dashboardUrl must be a string or null.'
+        };
+      }
+
+      settingsState.dashboardUrl = payload.dashboardUrl;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(payload, 'telemetryEnabled')) {
+      if (typeof payload.telemetryEnabled !== 'boolean') {
+        return {
+          ok: false,
+          error: 'telemetryEnabled must be a boolean.'
+        };
+      }
+
+      settingsState.telemetryEnabled = payload.telemetryEnabled;
+    }
+
+    return { ok: true };
+  }
 
   function handlePing() {
     return protocol.createSuccessResponse(messageTypes.PING, {
@@ -48,16 +102,20 @@
 
   function handleGetSettings() {
     return protocol.createSuccessResponse(messageTypes.GET_SETTINGS, {
-      settings: placeholderSettings
+      settings: cloneSettings()
     });
   }
 
   function handleSaveSettings(request) {
-    const nextSettings = request && request.payload ? request.payload : {};
+    const result = applySettingsPatch(request ? request.payload : null);
+
+    if (!result.ok) {
+      return protocol.createErrorResponse(messageTypes.SAVE_SETTINGS, result.error);
+    }
 
     return protocol.createSuccessResponse(messageTypes.SAVE_SETTINGS, {
       saved: true,
-      settings: Object.assign({}, placeholderSettings, nextSettings)
+      settings: cloneSettings()
     });
   }
 
